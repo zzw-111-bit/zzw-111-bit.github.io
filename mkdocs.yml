@@ -51,10 +51,11 @@ extra:
 
 # [Navigtion]
 nav:
-  - 讲稿 
-  - 博客
-  - 开发
-  - 关于
+  - C/C++: test.md 
+  - Java:
+    - MyBatis: Java/mybatis/test.md
+  - Python: test.md
+  - 关于: test.md
 
     
     
