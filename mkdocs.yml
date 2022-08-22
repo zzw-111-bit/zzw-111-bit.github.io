@@ -54,7 +54,7 @@ nav:
   - C/C++: test.md 
   - Java:
     - SpringMVC: Java/SpringMVC/SpringMVCNotes.md
-    - MyBatis: Java/mybatis/test.md
+    - MyBatis: Java/mybatis/SpringMVC.pdf
   - Python: test.md
   - 关于: test.md
 
