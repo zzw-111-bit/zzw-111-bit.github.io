@@ -53,6 +53,7 @@ extra:
 nav:
   - C/C++: test.md 
   - Java:
+    - Java/index.md
     - SpringMVC: Java/SpringMVC/SpringMVCNotes.md
     - MyBatis: Java/mybatis/SpringMVC.pdf
   - Python: test.md
