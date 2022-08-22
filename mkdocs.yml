@@ -60,6 +60,8 @@ nav:
     - MyBatisPlus: Java/mybatis/MyBatisPlus.pdf
     - SpringBoot: Java/SpringBoot/SpringBoot.pdf
   - Python: test.md
+  - 博客: 
+    - blogs/index.md
   - 关于: test.md
 
     
