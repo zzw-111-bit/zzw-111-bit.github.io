@@ -37,7 +37,7 @@ edit_uri: edit/main/docs # 编辑按钮跳转的链接
 repo_url: https://github.com/zzw-111-bit/zzw-111-bit.github.io # 右上角点击跳转的链接
 repo_name: zzw-111-bit.github.io # 右上角的名字
 ## [bottom-left corner]
-copyright: Copyright &copy; 张志威# 左下角的版权声明
+copyright: Copyright &copy; 张志威
 ## [bottom-right corner]
 extra:
   social: # icons
