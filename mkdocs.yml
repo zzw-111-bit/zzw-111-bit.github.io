@@ -54,7 +54,7 @@ nav:
   - C/C++: test.md 
   - Java:
     - Java/index.md
-    - Spring: Java/Spring/Spring5.pdf
+    - Spring: Java/Spring/Spring5.md
     - SpringMVC: Java/SpringMVC/SpringMVCNotes.md
     - MyBatis: Java/mybatis/MyBatis.pdf
     - MyBatisPlus: Java/mybatis/MyBatisPlus.pdf
