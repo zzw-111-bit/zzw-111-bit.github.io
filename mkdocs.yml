@@ -58,7 +58,7 @@ nav:
     - SpringMVC: Java/SpringMVC/SpringMVCNotes.md
     - MyBatis: Java/mybatis/MyBatis.pdf
     - MyBatisPlus: Java/mybatis/MyBatisPlus.pdf
-    - SpringBoot: Java/SpringBoot/SpringBoot.pdf
+    - SpringBoot: Java/SpringBoot/SpringBoot.md
   - Python: test.md
   - 博客: 
     - blogs/index.md
