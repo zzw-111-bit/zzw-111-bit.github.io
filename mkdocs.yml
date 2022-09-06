@@ -51,7 +51,9 @@ extra:
 
 # [Navigtion]
 nav:
-  - C/C++: test.md 
+  - C/C++: 
+    - C++/index.md
+    - 多维数组的创建: C++/动态开辟多维数组.md
   - Java:
     - Java/index.md
     - Spring: Java/Spring/Spring5.md
@@ -62,6 +64,7 @@ nav:
   - Python: test.md
   - 博客: 
     - blogs/index.md
+    - 多维数组的创建: C++/动态开辟多维数组.md
   - 关于: test.md
 
     
