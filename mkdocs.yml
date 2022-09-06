@@ -64,7 +64,7 @@ nav:
   - Python: test.md
   - 博客: 
     - blogs/index.md
-    - 多维数组的创建: C++/动态开辟多维数组.md
+    - 多维数组的创建: blogs/动态开辟多维数组.md
   - 关于: test.md
 
     
