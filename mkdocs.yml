@@ -61,7 +61,8 @@ nav:
     - MyBatis: Java/mybatis/MyBatis.pdf
     - MyBatisPlus: Java/mybatis/MyBatisPlus.pdf
     - SpringBoot: Java/SpringBoot/SpringBoot.md
-  - Python: test.md
+  - Python: 
+    - Python/index.md
   - 博客: 
     - blogs/index.md
     - 多维数组的创建: blogs/动态开辟多维数组.md
