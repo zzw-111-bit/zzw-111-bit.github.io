@@ -1084,3 +1084,186 @@ enum Singleton {
 ### 3、单例模式注意事项和细节说明
  单例模式保证了 系统内存中该类只存在一个对象，节省了系统资源，对于一些需要频繁创建销毁的对象，使用单例模式可以提高系统性能。当想实例化一个单例类的时候，必须要记住使用相应的获取对象的方法，而不是使用 new。 
 单例模式使用的场景：需要**频繁的进行创建和销毁的对象、创建对象时耗时过多或耗费资源过多**(即：重量级对象)，但又经常用到的对象、工具类对象、频繁访问数据库或文件的对象(比如数据源、session工厂等)。
+
+
+## 五、工厂模式
+
+### 1、问题引入
+看一个披萨的项目：要便于披萨种类的扩展，要便于维护：（1）披萨的种类很多(比如 GreekPizz、CheesePizz等) （2）披萨的制作有 prepare，bake, cut, box （3）完成披萨店订购功能。
+
+考虑解决这个问题，首先使用传统的方法：创建一个抽象的Pizza类，里面包含了披萨制作的通用方法（包括prepare、bake等），然后各种不同种类的Pizza需要继承该抽象类然后实现其中的抽象方法。最终通过OrderPizza对不同的Pizza进行订购。
+
+```java
+public OrderPizza(){
+    Pizza pizza=null;
+    String orderType;//订购披萨的类型
+    do{
+        orderType=gettype();
+        if(orderType.equals("greek")){
+            pizza=new GreekPizza();
+            pizza.setName(" 希腊披萨 ");
+        }else if(orderType.equals("cheese")){
+            pizza=new CheesePizza();
+            pizza.setName(" 奶酪披萨 ");
+        }else if(orderType.equals("pepper")){
+            pizza=new PepperPizza();
+            pizza.setName(" 胡椒披萨 ");
+        }else {
+            break;
+        }
+        // 输出pizza制作的过程
+        pizza.prepare();
+        pizza.bake();
+        pizza.cut();
+        pizza.box();
+    }while(true);
+}
+```
+
+**传统方法的优缺点：**（1）优点是比较好理解，简单易操作。（2） 缺点是**违反了设计模式的 ocp 原则**，即对扩展开放，对修改关闭。即当我们给类增加新功能的时候，尽量不修改代码，或者尽可能少修改代码。所以当我们需要新增一个Pizza类的时候，**需要在OrderPizza中重新写一条if语句进行判断。** 下面通过工厂模式对上述方法进行改进。
+### 2、简单工厂模式
+#### 基本介绍
+ （1）简单工厂模式是属于创建型模式，是工厂模式的一种。**简单工厂模式是由一个工厂对象决定创建出哪一种产品类的实例**。简单工厂模式是工厂模式家族中最简单实用的模式。
+ 
+（2）简单工厂模式：定义了一个创建对象的类，**由这个类来封装实例化对象的行为(代码)**
+
+（3） 在软件开发中，当我们会用到大量的创建某种、某类或者某批对象时，就会使用到工厂模式。
+#### 优化上面的实例
+简单工厂模式的设计方案：定义一个可以实例化**Pizza**对象的类，封装创建对象的代码。所以创建一个**SimplePizzaFactory**，在这个类中进行**Pizza**的创建。
+```java
+public class SimpleFactory {
+
+    public Pizza createPizza(String orderType){
+        Pizza pizza=null;
+        System.out.println("使用简单工厂模式");
+        if(orderType.equals("greek")){
+            pizza=new GreekPizza();
+            pizza.setName(" 希腊披萨 ");
+        }else if(orderType.equals("cheese")){
+            pizza=new CheesePizza();
+            pizza.setName(" 奶酪披萨 ");
+        }else if(orderType.equals("pepper")){
+            pizza=new PepperPizza();
+            pizza.setName(" 胡椒披萨 ");
+        }
+        return pizza;
+    }
+}
+```
+这个**简单工厂类**用来创建Pizza，在**OrderPizza**进行调用这个类中的方法来创建相应的Pizza。
+
+### 3、工厂方法模式
+
+#### 简单工厂模式的不足
+披萨项目新的需求：客户在点披萨时，可以点不同口味的披萨，比如 北京的奶酪 pizza、北京的胡椒pizza或者是伦敦的奶酪 pizza、伦敦的胡椒pizza。
+
+解决方法：使用简单工厂模式，创建不同的简单工厂类，比如**BJPizzaSimpleFactory、LDPizzaSimpleFactory**等等.从当前
+这个案例来说，也是可以的，但是考虑到项目的规模，以及软件的可维护性、可扩展性并不是特别好。下面介绍工厂方法模式。
+#### 简单介绍
+工厂方法模式设计方案：将披萨项目的实例化功能抽象成抽象方法，在不同的口味点餐子类中具体实现。工厂方法模式：定义了一个创建对象的抽象方法，由子类决定要实例化的类。**工厂方
+法模式将对象的实例化推迟到子类。**
+```java
+public abstract class OrderPizza {
+    // 定义一个抽象方法，让各个工厂子类自己实现
+    abstract Pizza createPizza(String orderType);
+    public OrderPizza(){
+        Pizza pizza=null;
+        String orderType;//订购披萨的类型
+        do{
+            orderType=gettype();
+            pizza = createPizza(orderType);
+            // 输出pizza制作的过程
+            pizza.prepare();
+            pizza.bake();
+            pizza.cut();
+            pizza.box();
+        }while(true);
+    }
+    private String gettype(){
+        try{
+            BufferedReader strin=new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("input pizza type");
+            String str=strin.readLine();
+            return str;
+        } catch (IOException e){
+            e.printStackTrace();
+            return "";
+        }
+    }
+}
+```
+这个**OrderPizza**类与上面不同的是，多了一个抽象方法**createPizza**，并在子类中实现该抽象方法，例如下列的北京Pizza的实现类。
+```java
+public class BJOrderPizza extends OrderPizza{
+    @Override
+    Pizza createPizza(String orderType) {
+        Pizza pizza=null;
+        if(orderType.equals("cheese")){
+            pizza=new BJCheesePizza();
+        } else if(orderType.equals("pepper")){
+            pizza=new BJPepperPizza();
+        }
+        return pizza;
+    }   
+}
+```
+在实现类中实现具体的操作，可以进行购买BJOrderPizza，cheeses口味的和pepper口味的。
+### 4、抽象工厂模式
+#### 基本介绍
+1) 抽象工厂模式：定义了一个 interface 用于创建相关或有依赖关系的对象簇，而无需指明具体的类
+2) 抽象工厂模式可以将**简单工厂模式和工厂方法模式进行整合**。
+3) 从设计层面看，**抽象工厂模式就是对简单工厂模式的改进**(或者称为进一步的抽象)。
+4) 将工厂抽象成两层，**AbsFactory(抽象工厂) 和 具体实现的工厂子类**。程序员可以根据创建对象类型使用对应的工厂子类。这样将单个的简单工厂类变成了工厂簇，更利于代码的维护和扩展。
+#### 代码示例
+对上述代码的一些修改
+```java
+// 抽象工厂模式的抽象层
+public interface AbsFactory {
+    // 让下面的工厂子类具体实现
+    public Pizza createPizza(String orderType);
+}
+```
+所有的工厂子类都需要继承该抽象类，下面举一个**BJFactory**的实现例子。
+```java
+public class BJFactory implements AbsFactory {
+    @Override
+    public Pizza createPizza(String orderType) {
+        System.out.println("使用的是抽象工厂模式");
+        Pizza pizza=null;
+        if(orderType.equals("cheese")){
+            pizza=new BJCheesePizza();
+        } else if(orderType.equals("pepper")){
+            pizza=new BJPepperPizza();
+        }
+        return pizza;
+    } 
+}
+```
+在这个工厂子类中，继承最上层的工厂类，实现了其中的抽象方法，最后是进行订购的方法，
+```java
+public class OrderPizza {
+    AbsFactory factory;
+    public OrderPizza(AbsFactory factory){
+        setFactory(factory);
+    }
+    private void setFactory(AbsFactory factory){
+        Pizza pizza=null;
+        String orderType="";//用户输入
+        this.factory=factory;
+        do {
+            orderType=gettype();
+            pizza=factory.createPizza(orderType);
+            if(pizza!=null){
+                pizza.prepare();
+                pizza.bake();
+                pizza.cut();
+                pizza.box();
+            }else{
+                System.out.println("订购失败");
+                break;
+            }      
+        }while(true);
+    }
+}
+```
+最终通过**new OrderPizza(new BJFactory());** 就可以完成对BJPizza的订购。
