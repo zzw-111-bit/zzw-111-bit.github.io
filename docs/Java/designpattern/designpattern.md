@@ -1267,3 +1267,160 @@ public class OrderPizza {
 }
 ```
 最终通过**new OrderPizza(new BJFactory());** 就可以完成对BJPizza的订购。
+
+## 六、原型模式
+### 1、问题引入
+现在有一只羊 tom，姓名为: tom, 年龄为：1，颜色为：白色，请编写程序创建和 tom 羊 属性完全相同的 10只羊。
+### 2、传统方法解决
+用**Sheep**的get和set方法进行对象的复制，代码示例如下：
+```java
+Sheep sheep=new Sheep("tom",1,"白色");
+        Sheep sheep2=new Sheep(sheep.getName(),sheep.getAge(),sheep.getColor());
+        Sheep sheep3=new Sheep(sheep.getName(),sheep.getAge(),sheep.getColor());
+        Sheep sheep4=new Sheep(sheep.getName(),sheep.getAge(),sheep.getColor());
+        Sheep sheep5=new Sheep(sheep.getName(),sheep.getAge(),sheep.getColor());
+```
+**传统方式的优缺点：**
+
+* 优点是比较好理解，简单易操作。
+* 在创建新的对象时，总是需要重新获取原始对象的属性，如果创建的对象比较复杂时，效率较低。
+* 总是需要重新初始化对象，而不是动态地获得对象运行时的状态, 不够灵活。
+### 原型模式
+Java 中 Object 类是所有类的根类，Object类提供了一个clone()方法，该方法可以将一个 Java 对象复制一份，但是需要实现 clone 的 Java 类必须要**实现一个接口Cloneable**，该接口表示该类能够复制且具有复制的能力 =>**原型模式。**
+原型模式(Prototype 模式)是指：用原型实例指定创建对象的种类，并且通过拷贝这些原型，创建新的对象。原型模式是一种创建型设计模式，允许一个对象再创建另外一个可定制的对象，无需知道如何创建的细节。工作原理是:通过将一个原型对象传给那个要发动创建的对象，这个要发动创建的对象通过请求原型对象拷贝它们自己来实施创建，即 对象.clone()。
+```java
+public class Sheep implements Cloneable{
+    private String name;
+    private int age;
+    private String color;
+    public Sheep friend; //普通对象，克隆时候如何处理，默认是浅拷贝
+
+    public Sheep() {
+    }
+
+    public Sheep(String name, int age, String color) {
+        this.name = name;
+        this.age = age;
+        this.color = color;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+    @Override
+    public String toString() {
+        return "Sheep [name=" + name + ", age=" + age + ", color=" + color + "]";
+    }
+    // 克隆该实例，使用默认的clone方法
+    @Override
+    protected Object clone(){   
+        Sheep sheep=null;
+        try{
+            sheep=(Sheep)super.clone();
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        return sheep;
+    }
+}
+```
+上述代码是改进的**Sheep**对象，主要是增加了一个clone方法，具体如何实现克隆可以参考下面的示例：
+```java
+ Sheep sheep=new Sheep("tom",1,"白色");
+        sheep.friend=new Sheep("jack",2,"黑色");
+        Sheep sheep2=(Sheep)sheep.clone();
+        Sheep sheep3=(Sheep)sheep.clone();
+        Sheep sheep4=(Sheep)sheep.clone();
+        Sheep sheep5=(Sheep)sheep.clone();
+```
+### 浅拷贝和深拷贝的讨论
+#### 浅拷贝的介绍
+对于数据类型是基本数据类型的成员变量，浅拷贝会直接进行值传递，也就是将该属性值复制一份给新的对象。 对于数据类型是引用数据类型的成员变量，比如说成员变量是某个数组、某个类的对象等，那么**浅拷贝会进行
+引用传递，也就是只是将该成员变量的引用值（内存地址）复制一份给新的对象**。因为实际上两个对象的该成员变量都指向同一个实例。在这种情况下，在一个对象中修改该成员变量会影响到另一个对象的该成员变量值。 前面我们克隆羊就是浅拷贝
+
+>  浅拷贝是使用默认的 clone()方法来实现。sheep = (Sheep) super.clone();
+
+#### 深拷贝介绍
+复制对象的所有基本数据类型的成员变量值。为所有引用数据类型的成员变量申请存储空间，并复制每个引用数据类型成员变量所引用的对象，直到该对象
+可达的所有对象。也就是说，**对象进行深拷贝要对整个对象(包括对象的引用类型)进行拷贝**。
+* 深拷贝实现方式 1：重写 clone 方法来实现深拷贝。
+* 深拷贝实现方式 2：通过对象序列化实现深拷贝(推荐)
+
+首先是第一种方式，重写clone方法来进行深拷贝。
+```java
+public class DeepProtoType implements Serializable, Cloneable  {
+    public String name;
+    public DeepCloneableTarget deepCloneableTarget;//引用类型
+    public DeepProtoType() {
+    }
+
+// 完成深拷贝 1、使用clone方法
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Object deep=null;
+        //这里完成对基本属性和String的克隆
+        deep=super.clone();
+        //对引用数据类型的属性，进行单独处理
+        DeepProtoType deepProtoType=(DeepProtoType)deep;
+        deepProtoType.deepCloneableTarget=(DeepCloneableTarget)deepCloneableTarget.clone();
+        return deepProtoType;
+    }
+}
+```
+这一种方法就是将类中的属性再利用clone方法进行复制克隆，但是更推荐使用下列方法，也就是使用序列化的方法。
+```java
+ // 完成深拷贝 2、通过对象序列化方法
+    public Object deepClone(){
+        //创建流对象
+        ByteArrayOutputStream bos=null;
+        ObjectOutputStream oos=null;
+        ByteArrayInputStream bis=null;
+        ObjectInputStream ois=null;
+        try {
+            bos=new ByteArrayOutputStream();
+            oos=new ObjectOutputStream(bos);
+            oos.writeObject(this); //当前这个对象以对象流的方式输出
+
+            // 反序列化
+            bis=new ByteArrayInputStream(bos.toByteArray());
+            ois=new ObjectInputStream(bis);
+
+            DeepProtoType copyObj=(DeepProtoType)ois.readObject();
+            return copyObj;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+```
+一般推荐使用第二种方法（虽然我自己个人对第二种方式没有特别透彻的理解），第一种方式的方法如果存在多个引用类型的对象，处理起来会较为麻烦。
+### 原型模式的细节
+ 
+（1）创建新的对象比较复杂时，可以利用原型模式简化对象的创建过程，同时也能够提高效率
+
+（2） 不用重新初始化对象，而是动态地获得对象运行时的状态
+（3）如果原始对象发生变化(增加或者减少属性)，其它克隆对象的也会发生相应的变化，无需修改代码
+
+（4） 在实现深克隆的时候可能需要比较复杂的代码
+
+（5） 缺点：需要为每一个类配备一个克隆方法，这对全新的类来说不是很难，但对已有的类进行改造时，需要修改其源代码，违背了 ocp 原则，这点请同学们注意.
