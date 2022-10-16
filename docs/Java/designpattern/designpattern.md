@@ -1625,3 +1625,106 @@ public class VoltageAdapter implements IVoltage5V {
 ### 适配器细节
 三种命名方式，是根据src是以怎样的形式给到 Adapter（在Adapter里的形式）来命名的。类适配器：以类给到，在Adapter里，就是将src当做类，继承。对象适配器：以对象给到，在Adapter 里，将 src 作为一个对象，持有。接口适配器：以接口给到，在Adapter里，将src作为一个接口，实现。Adapter 模式最大的作用还是将原本不兼容的接口融合在一起工作。
 
+## 九、桥接模式
+
+### 基本介绍
+桥接模式(Bridge 模式)是指：将实现与抽象放在两个不同的类层次中，使两个层次可以独立改变。是一种结构型设计模式。 
+Bridge 模式基于类的最小设计原则，通过使用封装、聚合及继承等行为让不同的类承担不同的职责。它的主要特点是把抽象(Abstraction)与行为实现(Implementation)分离开来，从而可以保持各部分的独立性以及应对他们的功能扩展。
+
+![桥接模式](./img/bridge.webp)
+
+ 
+抽象类(Abstraction)：维护了 Implementor/即它的实现类 ConcreteImplementorA， 二者是聚合关系， Abstraction充当桥接类。RefinedAbstraction：是Abstraction抽象类的子类。Implementor : 行为实现类的接口。ConcreteImplementorA/B：行为的具体实现类。
+### 示例代码
+下面看一些具体的例子。
+```java
+public abstract class Phone {
+    // 组合品牌
+    private Brand brand;
+    // 构造器
+    public Phone(Brand brand) {
+        this.brand = brand;
+    }   
+    protected void open(){
+        this.brand.open();
+    }
+    protected void close(){
+        this.brand.close();
+    }
+    protected void call(){
+        this.brand.call();
+    }
+}
+```
+首先这是一个抽象的手机类，然后，下面是手机的类型（折叠式或者滑盖式）。
+```java
+public class UpRightPhone extends Phone {
+     // 构造器
+     public UpRightPhone(Brand brand){
+        super(brand);
+    }
+    public void open(){
+        super.open();
+        System.out.println("直立样式的手机");
+    }
+    public void close(){
+        super.close();
+        System.out.println("直立样式的手机");
+    }
+    public void call(){
+        super.call();
+        System.out.println("直立样式的手机");
+    }
+}
+```
+然后是手机的功能接口
+```java
+public interface Brand {
+    void open();
+    void close();
+    void call();
+}
+```
+下面是具体的手机品牌
+```java
+public class XiaoMi implements Brand {
+
+    @Override
+    public void open() {
+       System.out.println("小米手机开机了"); 
+    }
+
+    @Override
+    public void close() {
+       System.out.println("小米手机关机了");
+    }
+
+    @Override
+    public void call() {
+        System.out.println("小米手机打电话");
+    }
+    
+}
+```
+最后调用者调用相关的方法实现具体的功能。
+```java
+public static void main(String[] args) {
+        // 获取折叠式手机（样式加品牌）
+        Phone phone1 =new FoldedPhone(new XiaoMi());
+        phone1.open();
+        phone1.call();
+        phone1.close();
+    }
+```
+### 细节和注意事项
+ （1）实现了抽象和实现部分的分离，从而极大的提供了系统的灵活性，让抽象部分和实现部分独立开来，这有助于系统进行分层设计，从而产生更好的结构化系统。（2） 对于系统的高层部分，只需要知道抽象部分和实现部分的接口就可以了，其它的部分由具体业务来完成。（3）桥接模式替代多层继承方案，可以减少子类的个数，降低系统的管理和维护成本。（4）桥接模式的引入增加了系统的理解和设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计和编程。
+桥接模式要求正确识别出系统中两个独立变化的维度(抽象、和实现)，因此其使用范围有一定的局限性，即需要有这样的应用场景。
+
+### 常用场景
+1) -JDBC 驱动程序
+2) -银行转账系统
+转账分类: 网上转账，柜台转账，AMT 转账
+转账用户类型：普通用户，银卡用户，金卡用户.. 
+3) -消息管理
+* 消息类型：即时消息，延时消息
+* 消息分类：手机短信，邮件消息，QQ 消息...
