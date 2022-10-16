@@ -1424,3 +1424,131 @@ public class DeepProtoType implements Serializable, Cloneable  {
 （4） 在实现深克隆的时候可能需要比较复杂的代码
 
 （5） 缺点：需要为每一个类配备一个克隆方法，这对全新的类来说不是很难，但对已有的类进行改造时，需要修改其源代码，违背了 ocp 原则，这点请同学们注意.
+
+## 七、建造者模式
+### 问题引入
+需要建房子：这一过程为打桩、砌墙、封顶。房子有各种各样的，比如普通房，高楼，别墅，各种房子的过程虽然一样，但是要求不要相同的。
+### 传统方式解决
+传统方式解决较为简单，通过建立一个抽象的房子类，里面包含了建房子的过程：打桩、砌墙、封顶的抽象方法。然后不同的房子实现其中的方法。
+```java
+public abstract class AbstractHouse {
+    // 打地基
+    public abstract void buildBasic();
+    // 砌墙
+    public abstract void buildWalls();
+    //封顶
+    public abstract void roofed();
+
+    public void build(){
+        buildBasic();
+        buildWalls();
+        roofed();
+    }
+}
+```
+普通房子实现这个抽象的方法，然后建造普通房子就可以通过实现这个普通房子的类就可以了。
+```java
+public class CommonHouse extends AbstractHouse {
+    @Override
+    public void buildBasic() {
+       System.out.println("给普通房子打地基"); 
+    }
+
+    @Override
+    public void buildWalls() {
+        System.out.println("给普通房子砌墙");   
+    }
+    @Override
+    public void roofed() {
+        System.out.println("给普通房子封顶");
+    }   
+}
+```
+传统方法优点是比较好理解，简单易操作。 设计的程序结构，过于简单，没有设计缓存层对象，程序的扩展和维护不好. 也就是说，这种设计方案，把产品(即：房子) 和 创建产品的过程(即：建房子流程) 封装在一起，耦合性增强了。
+
+### 建造者模式介绍
+#### 基本介绍
+ 建造者模式（Builder Pattern） 又叫生成器模式，是一种对象构建模式。它可以将复杂对象的建造过程抽象出来（抽象类别），使这个抽象过程的不同实现方法可以构造出不同表现（属性）的对象。 建造者模式 是一步一步创建一个复杂的对象，它允许用户只通过指定复杂对象的类型和内容就可以构建它们，
+用户不需要知道内部的具体构建细节。有四个角色：
+
+* Product（产品角色）： 一个具体的产品对象。
+* Builder（抽象建造者）： 创建一个 Product 对象的各个部件指定的 接口/抽象类。
+* ConcreteBuilder（具体建造者）： 实现接口，构建和装配各个部件。
+*  Director（指挥者）： 构建一个使用 Builder 接口的对象。它主要是用于创建一个复杂的对象。它主要有两个作用，一是：隔离了客户与对象的生产过程，二是：负责控制产品对象的生产过程。
+
+![建造者模式类图](./img/buildpattern.webp)
+
+抽象的建造者代码：
+```java
+public abstract class HouseBuilder {
+    protected House house=new House();
+    // 将制作的流程写好，抽象的方法
+    // 打地基
+    public abstract void buildBasic();
+    // 砌墙
+    public abstract void buildWalls();
+    //封顶
+    public abstract void roofed();
+
+    // 建造好房子，将房子返回
+    public House buildHouse(){
+        return house;
+    }
+}
+```
+将制作的流程写成抽象的方法，并将建好的房子返回。然后具体的房子建造的细节需要由实现的子类实现，比如我要建造高楼，要用一个高楼的实现类来继承该类，例如下面的**HighBuild**类
+```java
+public class HighBuilding extends HouseBuilder{
+    @Override
+    public void buildBasic() {
+        System.out.println("高楼打地基100米");        
+    }
+    @Override
+    public void buildWalls() {
+        System.out.println("高楼砌墙20cm");
+    }
+    @Override
+    public void roofed() {
+        System.out.println("高楼的屋顶");
+    }
+}
+```
+这个就是一个具体的建造者，用来建造具体的房子。下面来看一下指挥者，主要是用来创建一个复杂的对象。
+```java
+public class HouseDirector {
+    HouseBuilder houseBuilder=null;
+    // 通过构造器传入
+    public HouseDirector(HouseBuilder houseBuilder) {
+        this.houseBuilder = houseBuilder;
+    }
+    public void setHouseBuilder(HouseBuilder houseBuilder) {
+        this.houseBuilder = houseBuilder;
+    }
+    // 如何处理建造房子的流程，交给指挥者
+    public House constructHouse(){
+        houseBuilder.buildBasic();
+        houseBuilder.buildWalls();
+        houseBuilder.roofed();
+        return houseBuilder.buildHouse();
+    }
+}
+```
+在这个类中，我们通过构造方法（或者set方法）将**HouseBuilder**对象传入。然后通过**constructHouse**将具体流程交给指挥者。最后在主方法中调用。
+```java
+public class Client {
+    public static void main(String[] args) {
+        // 盖普通的房子
+        CommonHouse commonHouse=new CommonHouse();
+        // 准备创建房子的指挥者
+        HouseDirector houseDirector=new HouseDirector(commonHouse);
+        // 完成盖房子，返回产品
+        House house=houseDirector.constructHouse();
+    }
+}
+```
+#### 具体细节
+（1）客户端(使用程序)不必知道产品内部组成的细节，将产品本身与产品的创建过程解耦，使得相同的创建过程可以创建不同的产品对象。（2）每一个具体建造者都相对独立，而与其他的具体建造者无关，因此可以很方便地替换具体建造者或增加新的具体建造者， 用户使用不同的具体建造者即可得到不同的产品对象。 （3）可以更加精细地控制产品的创建过程 。将复杂产品的创建步骤分解在不同的方法中，使得创建过程更加清晰，也更方便使用程序来控制创建过程（4） 增加新的具体建造者无须修改原有类库的代码，指挥者类针对抽象建造者类编程，系统扩展方便，符合“开闭原则”（5） 建造者模式所创建的产品一般具有较多的共同点，其组成部分相似，如果产品之间的差异性很大，则不适合使用建造者模式，因此其使用范围受到一定的限制。（6）如果产品的内部变化复杂，可能会导致需要定义很多具体建造者类来实现这种变化，导致系统变得很庞大，因此在这种情况下，要考虑是否选择建造者模式。
+ 
+**抽象工厂模式 VS 建造者模式**
+
+抽象工厂模式实现对产品家族的创建，一个产品家族是这样的一系列产品：具有不同分类维度的产品组合，采用抽象工厂模式不需要关心构建过程，只关心什么产品由什么工厂生产即可。而建造者模式则是要求按照指定的蓝图建造产品，它的主要目的是通过组装零配件而产生一个新产品。
