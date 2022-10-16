@@ -1552,3 +1552,76 @@ public class Client {
 **抽象工厂模式 VS 建造者模式**
 
 抽象工厂模式实现对产品家族的创建，一个产品家族是这样的一系列产品：具有不同分类维度的产品组合，采用抽象工厂模式不需要关心构建过程，只关心什么产品由什么工厂生产即可。而建造者模式则是要求按照指定的蓝图建造产品，它的主要目的是通过组装零配件而产生一个新产品。
+
+## 八、设配器模式
+适配器模式(Adapter Pattern)将某个类的接口转换成客户端期望的另一个接口表示，主的目的是兼容性，让原本因接口不匹配不能一起工作的两个类可以协同工作。其别名为包装器(Wrapper)。适配器模式属于结构型模式。主要分为三类：**类适配器模式、对象适配器模式、接口适配器模式**。
+### 基本原理
+1) 适配器模式：将一个类的接口转换成另一种接口.让原本接口不兼容的类可以兼容
+2) 从用户的角度看不到被适配者，是解耦的
+3) 用户调用适配器转化出来的目标接口方法，适配器再调用被适配者的相关接口方法
+4) 用户收到反馈结果，感觉只是和目标接口交互。
+### 类适配器
+Adapter类，通过继承src类，实现dst类接口，完成src->dst的适配。以生活中充电器的例子来讲解适配器，充电器本身相当于Adapter，220V 交流电相当于 src (即被适配者)，我们的目的 dst(即目标)是 5V 直流电。
+```java
+public class Voltage220V {
+    public int output220V(){
+        int src=220;
+        System.out.println("电压="+src+"伏");
+        return src;
+    }
+}
+```
+
+上面这个是src类，下面是dst类接口
+```java
+public interface IVoltage5V {
+    public int output5V();
+}
+```
+我们的目的是实现一个**Adapter**类来完成适配。
+```java
+// 适配器类
+public class VoltageAdapter extends Voltage220V implements IVoltage5V {
+    @Override
+    public int output5V() {
+        // 获取到220V的电压
+        int srcV=output220V();
+        int dstV=srcV/44; 
+        return dstV;
+    }
+}
+```
+通过类适配器就可以完成电压的转换。但是需要注意：
+
+> Java 是单继承机制，所以类适配器需要继承 src 类这一点算是一个缺点, 因为这要求 dst 必须是接口，有一定局限性;
+> src 类的方法在 Adapter 中都会暴露出来，也增加了使用的成本。由于其继承了 src 类，所以它可以根据需求重写 src 类的方法，使得 Adapter的灵活性增强了。
+
+### 对象适配器
+ 基本思路和类的适配器模式相同，只是将Adapter 类作修改，不是继承 src 类，而是持有 src 类的实例，以解决兼容性的问题。 即：持有src类，实现dst类接口，完成 src->dst 的适配。**根据“合成复用原则”，在系统中尽量使用关联关系（聚合）来替代继承关系**。对象适配器模式是适配器模式常用的一种。
+```java
+// 适配器类
+public class VoltageAdapter implements IVoltage5V {
+    private Voltage220V voltage220v;
+    public VoltageAdapter(Voltage220V voltage220v) {
+        this.voltage220v = voltage220v;
+    }
+    @Override
+    public int output5V() {
+        int dst=0;
+        if(voltage220v!=null){
+            int src=voltage220v.output220V();
+            dst=src/44;
+        }
+        return dst;
+    }    
+}
+```
+这种方法，与上面的方法类似，但不是通过继承的方式，而是通过构造方法（或者set）获取实例。
+> 对象适配器和类适配器其实算是同一种思想，只不过实现方式不同。根据合成复用原则，使用组合替代继承， 所以它解决了类适配器必须继承 src的局限性问题，也不再要求dst必须是接口。使用成本更低，更灵活
+
+### 接口适配器
+ 核心思路：当不需要全部实现接口提供的方法时，可先设计一个抽象类实现接口，并为该接口中每个方法提供一个默认实现（空方法），那么该抽象类的子类可有选择地覆盖父类的某些方法来实现需求。适用于一个接口不想使用其所有的方法的情况。
+
+### 适配器细节
+三种命名方式，是根据src是以怎样的形式给到 Adapter（在Adapter里的形式）来命名的。类适配器：以类给到，在Adapter里，就是将src当做类，继承。对象适配器：以对象给到，在Adapter 里，将 src 作为一个对象，持有。接口适配器：以接口给到，在Adapter里，将src作为一个接口，实现。Adapter 模式最大的作用还是将原本不兼容的接口融合在一起工作。
+
