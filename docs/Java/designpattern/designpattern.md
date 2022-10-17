@@ -1728,3 +1728,122 @@ public static void main(String[] args) {
 3) -消息管理
 * 消息类型：即时消息，延时消息
 * 消息分类：手机短信，邮件消息，QQ 消息...
+
+## 十、装饰者模式
+### 问题引入
+1) 咖啡种类/单品咖啡：Espresso(意大利浓咖啡)、ShortBlack、LongBlack(美式咖啡)、Decaf(无因咖啡)
+2) 调料：Milk、Soy(豆浆)、Chocolate
+3) 要求在扩展新的咖啡种类时，具有良好的扩展性、改动方便、维护方便
+4) 使用 OO 的来计算不同种类咖啡的费用: 客户可以点单品咖啡，也可以单品咖啡+调料组合。
+### 传统解决方案
+为每一种单品Coffee创建对应的类，然后为对应的调料也建立相应的类，然后进行组合，这样处理会比较简单，但是会存在一个问题，也就是当我们增加一个单品咖啡，或者一个新的调料，类的数量就会倍增，就会出现类爆炸。
+
+因为咖啡单品+调料组合会造成类的倍增，因此可以做改进，将调料内置到 Drink 类，这样就不会造成类数量过多。从而提高项目的维护性。这样可以控制类的数量，不至于造成很多的类，在增加或者删除调料种类时，代码的维护量很大。
+
+### 装饰者模式
+#### 基本原理
+装饰者模式：动态的将新功能附加到对象上。在对象功能扩展方面，它比继承更有弹性，装饰者模式也体现了开闭原则(ocp)。
++ 装饰者模式就像打包一个快递
+    - 主体：比如：陶瓷、衣服 (Component) // 被装饰者
+    - 包装：比如：报纸填充、塑料泡沫、纸板、木板(Decorator)
++ Component 主体：比如类似前面的 Drink
++ ConcreteComponent 和 Decorator
+    - ConcreteComponent：具体的主体，比如前面的各个单品咖啡
+    - Decorator: 装饰者，比如各调料。
+
+#### 代码示例
+首先式抽象的**Drink**类
+```java
+public abstract class Drink {
+    public String des; //描述
+    private float price=0.0f;
+    public String getDes() {
+        return des;
+    }
+    public void setDes(String des) {
+        this.des = des;
+    }
+    public float getPrice() {
+        return price;
+    }
+    public void setPrice(float price) {
+        this.price = price;
+    }
+    //计算费用的抽象方法
+    // 由子类来实现
+    public abstract float cost();
+}
+```
+然后是实现了**Drink**类的**Coffee**类。主要是实现了得到价格的方法。
+```java
+public class Coffee extends Drink {
+    @Override
+    public float cost() {
+        return super.getPrice();
+    }
+}
+```
+然后是继承Coffee具体的Coffee类
+```java
+public class LongBlack extends Coffee {
+    public LongBlack(){
+        setDes("LongBlack");
+        setPrice(5.0f);
+    }
+}
+```
+然后是**Decorator**类（修饰者类）
+```java
+public class Decorator extends Drink {
+    private Drink obj;
+    public Decorator(Drink obj){
+        this.obj=obj;
+    }
+    @Override
+    public float cost() {
+        return super.getPrice()+obj.cost();
+    }
+    @Override
+    public String getDes() {
+        return super.des+" "+super.getPrice()+" && "+obj.getDes();
+    }
+}
+```
+然后是具体的**Decorator**类，例如Choloate
+```java
+public class Chocolate extends Decorator {
+    public Chocolate(Drink obj){
+        super(obj);
+        setDes(" 巧克力 ");
+        setPrice(3.0f);  //当前调味品的价格
+    }
+}
+```
+通过继承**Decorator**，设置其中的描述和价格。最后我们可以通过以上的类进行我们想要的咖啡组合例如一份奶+两份巧克力的LongBlack咖啡
+```java
+public static void main(String[] args) {
+    // 装饰着模式下的订单：2份巧克力+一份牛奶的LongBlack
+    // 先点一份LongBlack
+    Drink order=new LongBlack();
+    System.out.println("费用1="+order.cost());
+    System.out.println("描述="+order.getDes());
+    // 加入一份牛奶
+    order =new Milk(order);
+    System.out.println("费用2="+order.cost());
+    System.out.println("描述="+order.getDes());
+    // 加入一份巧克力
+    order =new Chocolate(order);
+    System.out.println("费用3="+order.cost());
+    System.out.println("描述="+order.getDes());
+    // 加入一份巧克力
+    order =new Chocolate(order);
+    System.out.println("费用3="+order.cost());
+    System.out.println("描述="+order.getDes());
+}
+```
+#### 优缺点
+* Decorator模式与继承关系的目的都是要扩展对象的功能，但是Decorator可以提供比继承更多的灵活性。
+* 通过使用不同的具体装饰类以及这些装饰类的排列组合，设计师可以创造出很多不同行为的组合。
+* 这种比继承更加灵活机动的特性，也同时意味着更加多的复杂性。
+* 装饰模式会导致设计中出现许多小类，如果过度使用，会使程序变得很复杂。
+* 装饰模式是针对抽象组件（Component）类型编程。但是，如果你要针对具体组件编程时，就应该重新思考你的应用架构，以及装饰者是否合适。当然也可以改变Component接口，增加新的公开的行为，实现“半透明”的装饰者模式。在实际项目中要做出最佳选择。
