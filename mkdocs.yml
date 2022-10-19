@@ -66,6 +66,7 @@ nav:
     - Python/index.md
   - 博客: 
     - blogs/index.md
+    - vue3快速入门: blogs/vue3快速上手.md
     - 多维数组的创建: blogs/动态开辟多维数组.md
   - 关于: test.md
 
