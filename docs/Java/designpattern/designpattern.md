@@ -2024,3 +2024,131 @@ public static void main(String[] args) {
 1) 简化客户端操作。客户端只需要面对一致的对象而不用考虑整体部分或者节点叶子的问题。
 2) 具有较强的扩展性。当我们要更改组合对象时，我们只需要调整内部的层次关系，客户端不用做出任何改动. 3) 方便创建出复杂的层次结构。客户端不用理会组合里面的组成细节，容易添加节点或者叶子从而创建出复杂的树形结构
 4) 需要遍历组织机构，或者处理的对象具有树形结构时, 非常适合使用组合模式. 5) 要求较高的抽象性，如果节点和叶子有很多差异性的话，比如很多方法和属性都不一样，不适合使用组合模式。
+
+## 十二、外观模式
+### 问题引入
+组建一个家庭影院：
+DVD 播放器、投影仪、自动屏幕、环绕立体声、爆米花机，要求完成使用家庭影院的功能，其过程为，直接用遥控器，统筹各设备开关。
+开爆米花机->放下屏幕->开投影仪->开音响->开 DVD，选 dvd->去拿爆米花->调暗灯光->播放->
+观影结束后，关闭各种设备。
+
+### 传统方式解决
+为每个用品创建对应的类与对象，以及需要使用的一系列方法，然后进行调用。但是这种方法存在较大的问题和复杂度。 
+ 
+创建各个子系统的对象，并直接去调用子系统（对象）相关方法，会造成调用过程混乱，没有清晰的过程。不利于去维护对子系统的操作。
+
+**解决思路**：定义一个高层接口，给子系统中的一组接口提供一个一致的界面(比如在高层接口提供四个方法ready, play, pause, end )，用来访问子系统中的一群接口。 也就是说 就是通过定义一个一致的接口(界面类)，用以屏蔽内部子系统的细节，使得调用端只需跟这个接口发
+生调用，而无需关心这个子系统的内部细节 => 外观模式。（自我感觉就是加了一层，没什么是加一层解决不了的，如果有，那就再加一层）。
+
+### 外观模式介绍
+外观模式（Facade），也叫过程模式：外观模式为子系统中的一组接口提供一个一致的界面，此模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。外观模式通过定义一个一致的接口，用以屏蔽内部子系统的细节，使得调用端只需跟这个接口发生调用，而无需关心这个子系统的内部细节。
+
+下面是代码示例
+```java
+public class DVDPlayer {
+    // 使用单例模式，饿汉式
+    private static DVDPlayer instance = new DVDPlayer();
+    public static DVDPlayer getInstance(){
+        return instance;
+    }
+
+    public void on(){
+        System.out.println(" dvd on ");
+    }
+
+    public void off(){
+        System.out.println("dvd off");
+    }
+
+    public void play(){
+        System.out.println("dvd is playing");
+    }
+
+    public void pause(){
+        System.out.println("dvd pause");
+    }
+}
+```
+上面的代码是DVDPlayer的一些操作
+```java
+public class Screen {
+    private static Screen instance = new Screen();
+    public static Screen getInstance(){
+        return instance;
+    }
+    public void up(){
+        System.out.println(" screen up ");
+    }
+
+    public void down(){
+        System.out.println(" screen down ");
+    }
+}
+```
+上面是Screen屏幕的一些操作。还有许多的操作与上述情况类似，不再写了，下面是**多加的那一层**，也就是调用各个子系统的接口。
+```java
+public class HomeTheaterFacade {
+
+    // 定义各个子系统的对象
+    private TheaterLight theaterLight;
+    private Popcorn popcorn;
+    private Projector projector;
+    private Screen screen;
+    private Setero setero;
+    private DVDPlayer dvdPlayer; 
+
+    public HomeTheaterFacade() {
+        this.theaterLight = TheaterLight.getInstance();
+        this.popcorn = Popcorn.getInstance();
+        this.projector = Projector.getInstance();
+        this.screen = Screen.getInstance();
+        this.setero = Setero.getInstance();
+        this.dvdPlayer = DVDPlayer.getInstance();
+    }
+
+    // 操作分为4步
+    public void ready(){
+        popcorn.on();
+        popcorn.pop();
+        screen.down();
+        projector.on();
+        setero.on();
+        dvdPlayer.on();
+        theaterLight.dim();
+    }
+
+    public void play(){
+        dvdPlayer.play();
+    }
+
+    public void pause(){
+        dvdPlayer.pause();
+    }
+
+    public void end(){
+        popcorn.off();
+        theaterLight.bright();
+        screen.up();
+        projector.off();
+        setero.off();
+        dvdPlayer.off();
+    }
+}
+```
+最后是调用这个类，来完成家庭影院的功能。
+```java
+ public static void main(String[] args) {
+        HomeTheaterFacade homeTheaterFacade=new HomeTheaterFacade();
+        homeTheaterFacade.ready();
+        homeTheaterFacade.play();
+    }
+```
+### 注意事项和细节
+ 
+* 外观模式对外屏蔽了子系统的细节，因此外观模式降低了客户端对子系统使用的复杂性
+* 外观模式对客户端与子系统的耦合关系 - 解耦，让子系统内部的模块更易维护和扩展
+* 通过合理的使用外观模式，可以帮我们更好的划分访问的层次
+* 当系统需要进行分层设计时，可以考虑使用 Facade 模式
+* 在维护一个遗留的大型系统时，可能这个系统已经变得非常难以维护和扩展，此时可以考虑为新系统开发一个
+Facade 类，来提供遗留系统的比较清晰简单的接口，让新系统与 Facade 类交互，提高复用性
+* 不能过多的或者不合理的使用外观模式，使用外观模式好，还是直接调用模块好。要以让系统有层次，利于维护为目的。
