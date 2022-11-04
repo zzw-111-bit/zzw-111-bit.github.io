@@ -54,6 +54,7 @@ nav:
   - C/C++: 
     - C++/index.md
     - Lambda表达式: C++/Lambda表达式.md
+    - C++回调函数: C++/C++回调函数.md
     - 多维数组的创建: C++/动态开辟多维数组.md
   - Java:
     - Java/index.md
@@ -71,6 +72,7 @@ nav:
     - Lambda表达式: C++/Lambda表达式.md
     - 多维数组的创建: blogs/动态开辟多维数组.md
     - solidity基础: blogs/solidity基础.md
+    - C++回调函数: C++/C++回调函数.md
   - 关于: test.md
 
     
