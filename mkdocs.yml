@@ -53,6 +53,7 @@ extra:
 nav:
   - C/C++: 
     - C++/index.md
+    - Lambda表达式: C++/Lambda表达式.md
     - 多维数组的创建: C++/动态开辟多维数组.md
   - Java:
     - Java/index.md
@@ -67,6 +68,7 @@ nav:
   - 博客: 
     - blogs/index.md
     - vue3快速入门: blogs/vue3快速上手.md
+    - Lambda表达式: C++/Lambda表达式.md
     - 多维数组的创建: blogs/动态开辟多维数组.md
     - solidity基础: blogs/solidity基础.md
   - 关于: test.md
