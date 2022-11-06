@@ -73,7 +73,10 @@ nav:
     - 多维数组的创建: blogs/动态开辟多维数组.md
     - solidity基础: blogs/solidity基础.md
     - C/C++回调函数: C++/C++回调函数.md
-    - 强化学习基本概念: blogs/强化学习1(基本概念).md
+    - 强化学习基本概念1: blogs/强化学习1(基本概念).md
+    - 强化学习基本概念2: blogs/强化学习2(价值学习).md
+    - 强化学习基本概念3: blogs/强化学习3(策略学习).md
+    - 强化学习基本概念4: blogs/强化学习4(Actor-Critic算法).md
   - 关于: test.md
 
     
